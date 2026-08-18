@@ -1,72 +1,38 @@
 from rich import print as rprint
 from rich.console import Console 
+import arxiv 
 
 rprint = Console(highlight = False).print
 
+def format_authors(full_name): 
+    parts = full_name.strip().split()
+    last_name = parts[-1] 
+    first_mid = parts[:-1]
 
-print("What type of work are you citing?")
-print('''(1): Journal Article\n
-(2): Book\n
-(3): Dataset\n
-(4): Other''')
-full_citation = ""
-while True:
-    work_type = input()
-    if work_type == "1": 
-        print("Provide the following details in the following format: Names of authros (formatted last, first)|year of publication|title of paper|title of journal|volume of journal|issue or citation number|page range|DOI")
-        break
-        # TASK: Need to make journal citation
-    # TASK: Make this handle None as an input. 
-    # TASK: Make this handle multi-author works. 
-    elif work_type == "2": 
-        print("Are you citing a whole book (1) or a chaper in a book (2)?")
-        book_pOw = input()
-        if book_pOw == "1": 
-            print("Provide the following details in the following format: Names of authors (formatted last, first)|year of publication|title of book|publisher's name|total pages")
-            citation_information = input()
-            citation_information = citation_information.strip()
-            citation_information = list(citation_information.split("|"))
-            count = 0
-            for i in range(len(citation_information)):
-                if i == 0: # Name
-                    for char in citation_information[0]: 
-                        if char == ',': 
-                            first_initial = citation_information[0][citation_information[0].index(char) + 2]
-                            last_name = citation_information[0][:citation_information[0].index(char)] 
-                else: 
-                    continue
-            print("This is your full citation:")
-            rprint(f"{last_name}, {first_initial}., {citation_information[1]}: [italic]{citation_information[2]}[/italic]. {citation_information[3]}, {citation_information[4]} pp.")
+    initials = [f"{name[0]}." for name in first_mid] 
 
-        elif book_pOw == "2": 
-            print("Provide the following details in the following format: Names of the auhors|year of publication|title of chapter|title of book|editors|publisher's name|page range")
-            
-    elif work_type == "3": 
-        print("Provide the following details in the following format: Dataset Title|version|archive/distributor|access date (DD, MM, YYYY)|data locaor/identifier (doi or URL): ")
-        break
-        # TASK: Need to make dataset citations
+    return f"{' '.join(initials)} {last_name}"  
 
-    elif work_type == "4": 
-        print('''Which of the following are you citing:\n
-            (1): Conference proceedings, preprints, extended abstracts\n
-            (2): Dissertation/thesis\n
-            (3): Report/note/memo\n
-            (4): Web page\n
-            (5): Unpublished material''')
-        other_choice = input()
-        if other_choice == "1": 
-            print()
-        elif other_choice == "2": 
-            print()
-        elif other_choice == "3":
-            print()
-        elif other_choice == "4": 
-            print()
-        elif other_choice == "5": 
-            print()
-        else: 
-            print()
-        break
-        #TASK: Need to make 'other' citations
+def generate_ams_citation(id):
+    format_id = str(id) 
+    client = arxiv.Client()
+    search = arxiv.Search(id_list = [format_id])
+    paper = next(client.results(search), None)
+  
+    if not paper: 
+        raise ValueError("No paper was found with this ID.")
+
+    authors = [auth.name for auth in paper.authors]
+    formatted_auths = [format_authors(auth) for auth in authors]
+    if len(formatted_auths) == 1: 
+        author_str = formatted_auths[0]
+    elif len(formatted_auths) == 2: 
+        author_str = f"{formatted_auths[0]} and {formatted_auths[1]}"
     else: 
-        print("Invalid choice, try again.")
+        author_str = f"{', '.join(formatted_auths[:-1])}, and {formatted_auths[-1]}"
+
+    year = paper.published.year
+    title = paper.title.strip().replace("\n", " ")
+
+    rprint(f"{author_str}, [italic]{title}[/italic], arXiv:{format_id}, {year}.")
+generate_ams_citation("2608.14618")
