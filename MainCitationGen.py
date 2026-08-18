@@ -35,4 +35,3 @@ def generate_ams_citation(id):
     title = paper.title.strip().replace("\n", " ")
 
     rprint(f"{author_str}, [italic]{title}[/italic], arXiv:{format_id}, {year}.")
-generate_ams_citation("2608.14618")
