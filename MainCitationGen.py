@@ -3,6 +3,8 @@ from rich.console import Console
 import arxiv 
 
 rprint = Console(highlight = False).print
+client = arxiv.Client(page_size = 1, delay_seconds = 5, num_retries = 3) # Initilizes arXiv client. 
+# Parameters in Client are only to optimize speed of finding the appropriate paper. 
 
 def format_authors(full_name): 
     parts = full_name.strip().split()
@@ -15,7 +17,6 @@ def format_authors(full_name):
 
 def generate_ams_citation(id):
     format_id = str(id) 
-    client = arxiv.Client()
     search = arxiv.Search(id_list = [format_id])
     paper = next(client.results(search), None)
   
@@ -34,5 +35,7 @@ def generate_ams_citation(id):
     year = paper.published.year
     title = paper.title.strip().replace("\n", " ")
 
-    rprint(f"{author_str}, [italic]{title}[/italic], arXiv:{format_id}, {year}.")
-generate_ams_citation("2608.14618")
+    rprint(f"Rich text: {author_str}, [italic]{title}[/italic], arXiv:{format_id}, {year}.\n")
+    print(f"LaTeX: {author_str}, \\textit{{{title}}}, arXiv: {format_id}, {year}.\n")
+    print(f"Markdown: {author_str} *{title}*, arXiv: {format_id}, {year}.")
+generate_ams_citation(2608.14618)
