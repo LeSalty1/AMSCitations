@@ -35,7 +35,5 @@ def generate_ams_citation(id):
     year = paper.published.year
     title = paper.title.strip().replace("\n", " ")
 
-    rprint(f"Rich text: {author_str}, [italic]{title}[/italic], arXiv:{format_id}, {year}.\n")
-    print(f"LaTeX: {author_str}, \\textit{{{title}}}, arXiv: {format_id}, {year}.\n")
-    print(f"Markdown: {author_str} *{title}*, arXiv: {format_id}, {year}.")
-generate_ams_citation(2608.14618)
+    rprint(f"{author_str}, [italic]{title}[/italic], arXiv:{format_id}, {year}.")
+generate_ams_citation("2608.14618")
